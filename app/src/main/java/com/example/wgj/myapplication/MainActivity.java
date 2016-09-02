@@ -1,6 +1,7 @@
 package com.example.wgj.myapplication;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.action_setting){
+            startActivity(new Intent(MainActivity.this, SettingActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);

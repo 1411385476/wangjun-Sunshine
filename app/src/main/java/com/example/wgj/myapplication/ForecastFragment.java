@@ -3,11 +3,16 @@ package com.example.wgj.myapplication;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -40,6 +45,11 @@ public class ForecastFragment extends Fragment {
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,10 +77,34 @@ public class ForecastFragment extends Fragment {
                 startActivity(intent);
             }
         });
-        new FetchWeatherTask().execute();
         return rootView;
     }
-    public  class FetchWeatherTask extends AsyncTask<Void, Void, String[]>{
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.forecastfragment, menu);
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.action_refresh){
+            updateWeather();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void updateWeather(){
+        FetchWeatherTask weatherTask = new FetchWeatherTask();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location = prefs.getString(getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default));
+        weatherTask.execute(location);
+    }
+
+    public  class FetchWeatherTask extends AsyncTask<String, Void, String[]>{
         private final String LOG_TAG = "FetchWeatherTask";
 
         private String getReadableDateFormat(long time){
@@ -127,7 +161,7 @@ public class ForecastFragment extends Fragment {
 
 
         @Override
-        protected String[] doInBackground(Void... voids) {
+        protected String[] doInBackground(String... location) {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
 
@@ -138,7 +172,7 @@ public class ForecastFragment extends Fragment {
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
-                String baseUrl = "http://api.openweathermap.org/data/2.5/forecast?q=Beijin,cn&mode=json&units=metric&cnt=7";
+                String baseUrl = "http://api.openweathermap.org/data/2.5/forecast?q="+ location+",cn&mode=json&units=metric&cnt=7";
                 String apiKey = "&APPID=" + "08299cf1e680c644938d6a8da4fc871c";
                 URL url = new URL(baseUrl.concat(apiKey));
 
