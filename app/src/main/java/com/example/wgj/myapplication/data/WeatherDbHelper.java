@@ -18,18 +18,19 @@ public class WeatherDbHelper extends SQLiteOpenHelper{
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        final String SQL_CREATE_LOCATION_TABLE = "CREATE TABLE" + LocationEntry.TABLE_NAME +" (" +
-                LocationEntry._ID + " INTEGER PRIMARY KEY," +
+        final String SQL_CREATE_LOCATION_TABLE = "CREATE TABLE " + LocationEntry.TABLE_NAME +" (" +
+                LocationEntry._ID + " INTEGER PRIMARY KEY, " +
                 LocationEntry.COLUMN_LOCATION_SETTING + " TEXT UNIQUE NULL, " +
                 LocationEntry.COLUMN_CITY_NAME + " TEXT NOT NULL, " +
                 LocationEntry.COLUMN_COORD_LAT + " REAL NOT NULL, " +
-                LocationEntry.COLUMN_COORD_LONG + " REAL NOT NULL, " +
+                LocationEntry.COLUMN_COORD_LONG + " REAL NOT NULL " +
                 " );";
 
-        final String SQL_CREATE_WEATHER_TABLE = "CREATE TABLE" + WeatherEntry.TABLE_NAME + " (" +
-                WeatherEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                WeatherEntry.COLUMN_LOC_KEY + " INTEGER NOT NULL," +
-                WeatherEntry.COLUMN_DATE + " INTEGER NOT NULL," +
+        final String SQL_CREATE_WEATHER_TABLE = "CREATE TABLE " + WeatherEntry.TABLE_NAME + " (" +
+                WeatherEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+
+                WeatherEntry.COLUMN_LOC_KEY + " INTEGER NOT NULL, " +
+                WeatherEntry.COLUMN_DATE + " INTEGER NOT NULL, " +
                 WeatherEntry.COLUMN_SHORT_DESC + " TEXT NOT NULL, " +
                 WeatherEntry.COLUMN_WEATHER_ID + " INTEGER NOT NULL, " +
 

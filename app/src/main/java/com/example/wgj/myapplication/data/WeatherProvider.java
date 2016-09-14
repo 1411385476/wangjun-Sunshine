@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.util.Log;
 
 public class WeatherProvider extends ContentProvider {
 
@@ -67,6 +68,8 @@ public class WeatherProvider extends ContentProvider {
             selectionArgs = new String[]{locationSetting, Long.toString(startDate)};
             selection = sLocationSettingWithStartDateSelection;
         }
+        Log.d("getWeatherByLocation", "projection  -- " + projection +" selection  -- " + selection
+        + "selectionArgs -- " +selectionArgs + "sortOrder" + sortOrder );
         return sWeatherByLocationSettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
                 projection,
                 selection,
@@ -102,6 +105,10 @@ public class WeatherProvider extends ContentProvider {
         // at the given URI.
         final int match = sUriMather.match(uri);
         switch (match){
+            case WEATHER_WITH_LOCATION_AND_DATE:
+                return WeatherContract.WeatherEntry.CONTENT_ITEM_TYPE;
+            case WEATHER_WITH_LOCATION:
+                return WeatherContract.WeatherEntry.CONTENT_TYPE;
             case WEATHER:
                 return WeatherContract.WeatherEntry.CONTENT_TYPE;
             case LOCATION:
@@ -187,6 +194,7 @@ public class WeatherProvider extends ContentProvider {
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
 
+        Log.d("bulkInsert", "uri   " + uri);
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMather.match(uri);
         switch (match){
@@ -218,6 +226,12 @@ public class WeatherProvider extends ContentProvider {
     }
 
     static UriMatcher buildMather(){
-        return null;
+        final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+        final String authority = WeatherContract.CONTENT_AUTHORITY;
+        uriMatcher.addURI(authority, WeatherContract.PATH_WEATHER, WEATHER);
+        uriMatcher.addURI(authority, WeatherContract.PATH_WEATHER + "/*", WEATHER_WITH_LOCATION);
+        uriMatcher.addURI(authority, WeatherContract.PATH_WEATHER + "/*/#", WEATHER_WITH_LOCATION_AND_DATE);
+        uriMatcher.addURI(authority, WeatherContract.PATH_LOCATION, LOCATION);
+        return uriMatcher;
     }
 }

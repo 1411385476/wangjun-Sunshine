@@ -37,8 +37,7 @@
 
         <provider
             android:name=".data.WeatherProvider"
-            android:authorities="wgj"
-            android:enabled="true"
+            android:authorities="com.example.wgj.myapplication"
             android:exported="true"></provider>
     </application>
 
