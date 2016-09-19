@@ -80,7 +80,7 @@ public class WeatherContract {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
         public static Uri buildWeatherLocation(String locationSetting) {
-            return null;
+            return CONTENT_URI.buildUpon().appendPath(locationSetting).build();
         }
 
         public static Uri buildWeatherLocationWIthStartDate(String locationSetting, long startDate){
@@ -88,6 +88,11 @@ public class WeatherContract {
             long normalizedDate = normalizeDate(startDate);
             return CONTENT_URI.buildUpon().appendPath(locationSetting).
                     appendQueryParameter(COLUMN_DATE, Long.toString(normalizedDate)).build();
+        }
+
+        public static Uri buildWeatherLocationWithDate(String locationSetting, long date) {
+            return CONTENT_URI.buildUpon().appendPath(locationSetting)
+                    .appendPath(Long.toString(normalizeDate(date))).build();
         }
 
         public static String getLocationSettingFromUri(Uri uri){

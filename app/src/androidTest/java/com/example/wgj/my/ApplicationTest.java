@@ -1,4 +1,4 @@
-package com.example.wgj.myapplication;
+package com.example.wgj.my;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

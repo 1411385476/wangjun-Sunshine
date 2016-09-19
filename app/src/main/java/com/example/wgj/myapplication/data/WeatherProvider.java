@@ -28,13 +28,12 @@ public class WeatherProvider extends ContentProvider {
     static {
         sWeatherByLocationSettingQueryBuilder = new SQLiteQueryBuilder();
         sWeatherByLocationSettingQueryBuilder.setTables(
-                WeatherContract.WeatherEntry.TABLE_NAME + " INNER JOIN" +
+                WeatherContract.WeatherEntry.TABLE_NAME + " INNER JOIN " +
                         WeatherContract.LocationEntry.TABLE_NAME +
-                        " ON" + WeatherContract.WeatherEntry.TABLE_NAME +
+                        " ON " + WeatherContract.WeatherEntry.TABLE_NAME +
                         "." + WeatherContract.WeatherEntry.COLUMN_LOC_KEY +
-                        "." + WeatherContract.LocationEntry.TABLE_NAME +
-                        "." + WeatherContract.LocationEntry._ID
-        );
+                        "=" + WeatherContract.LocationEntry.TABLE_NAME +
+                        "." + WeatherContract.LocationEntry._ID);
     }
 
     private static final String sLocationSettingSelection =
@@ -96,7 +95,28 @@ public class WeatherProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         // Implement this to handle requests to delete one or more rows.
-        return 0;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMather.match(uri);
+        int rowsDeleted;
+        // this makes delete all rows return the number of rows deleted
+        if ( null == selection ) selection = "1";
+        switch (match) {
+            case WEATHER:
+                rowsDeleted = db.delete(
+                        WeatherContract.WeatherEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case LOCATION:
+                rowsDeleted = db.delete(
+                        WeatherContract.LocationEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        // Because a null deletes all rows
+        if (rowsDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsDeleted;
     }
 
     @Override
@@ -135,6 +155,14 @@ public class WeatherProvider extends ContentProvider {
                     throw new UnsupportedOperationException("Not yet implemented");
                 }
                 break;
+            case LOCATION:
+                long id = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, values);
+                if ( id > 0 )
+                    returnUri = WeatherContract.LocationEntry.buildLocationUri(id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+
             default:
                     throw new UnsupportedOperationException("Not yet implemented");
         }
@@ -162,22 +190,44 @@ public class WeatherProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
         // TODO: Implement this to handle query requests from clients.
+        Log.d("query", "query");
         Cursor retCursor;
         switch (sUriMather.match(uri)){
 
             case WEATHER_WITH_LOCATION_AND_DATE:
+                Log.d("query", "WEATHER_WITH_LOCATION_AND_DATE");
                 retCursor = getWeatherByLocationSettingAndDate(uri, projection, sortOrder);
                 break;
             case WEATHER_WITH_LOCATION:
+                Log.d("query", "WEATHER_WITH_LOCATION");
                 retCursor = getWeatherByLocationSetting(uri,projection,sortOrder);
                 break;
             case WEATHER:
-                retCursor = null;
+                Log.d("query", "WEATHER");
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        WeatherContract.WeatherEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
                 break;
             case LOCATION:
-                retCursor = null;
+                Log.d("query", "LOCATION");
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        WeatherContract.LocationEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
                 break;
             default:
+                Log.d("query", "default");
                 throw new UnsupportedOperationException("Not yet implemented");
         }
         retCursor.setNotificationUri(getContext().getContentResolver(),uri);
@@ -187,8 +237,27 @@ public class WeatherProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
-        // TODO: Implement this to handle requests to update one or more rows.
-        return 0;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMather.match(uri);
+        int rowsUpdated;
+
+        switch (match) {
+            case WEATHER:
+                normalizeDate(values);
+                rowsUpdated = db.update(WeatherContract.WeatherEntry.TABLE_NAME, values, selection,
+                        selectionArgs);
+                break;
+            case LOCATION:
+                rowsUpdated = db.update(WeatherContract.LocationEntry.TABLE_NAME, values, selection,
+                        selectionArgs);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        if (rowsUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsUpdated;
     }
 
     @Override
@@ -209,14 +278,17 @@ public class WeatherProvider extends ContentProvider {
                             returnCount++;
                         }
                     }
+                    db.setTransactionSuccessful();
                 }finally {
                     db.endTransaction();
                 }
                 getContext().getContentResolver().notifyChange(uri,null);
                 return returnCount;
+            default:
+                return super.bulkInsert(uri, values);
+
         }
 
-        return super.bulkInsert(uri, values);
     }
 
     @Override

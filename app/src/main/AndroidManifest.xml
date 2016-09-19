@@ -10,7 +10,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name="com.example.wgj.myapplication.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -18,17 +18,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DetailActivity"
+            android:name="com.example.wgj.myapplication.DetailActivity"
             android:label="@string/title_detail"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName="com.example.wgj.myapplication.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value="com.example.wgj.myapplication.MainActivity" />
         </activity>
         <activity
-            android:name=".SettingActivity"
+            android:name="com.example.wgj.myapplication.SettingActivity"
             android:label="@string/title_activity_setting"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName="com.example.wgj.myapplication.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -36,7 +36,7 @@
         </activity>
 
         <provider
-            android:name=".data.WeatherProvider"
+            android:name="com.example.wgj.myapplication.data.WeatherProvider"
             android:authorities="com.example.wgj.myapplication"
             android:exported="true"></provider>
     </application>

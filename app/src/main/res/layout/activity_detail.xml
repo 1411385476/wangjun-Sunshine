@@ -4,6 +4,6 @@
     android:id="@+id/detail_cotainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DetailActivity">
+    tools:context="com.example.wgj.myapplication.DetailActivity">
 
 </FrameLayout>

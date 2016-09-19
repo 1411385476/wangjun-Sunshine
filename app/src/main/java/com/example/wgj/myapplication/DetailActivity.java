@@ -12,9 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+
 public class DetailActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = "DetailActivity";
+    private String data;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,8 +53,8 @@ public class DetailActivity extends AppCompatActivity {
 
             Intent intent = getActivity().getIntent();
             TextView  detailText = (TextView) rootView.findViewById(R.id.forecast_detail);
-            if (intent != null && intent.hasExtra("detail")){
-                String detail = intent.getStringExtra("detail");
+            if (intent != null){
+                String detail = intent.getDataString();
                 detailText.setText(detail);
 
             }
